@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizMaster - Complete Setup Guide</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<style>
+.option-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+.pulse-animation {
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { transform: scale(1); }
+50% { transform: scale(1.05); }
+100% { transform: scale(1); }
+}
+.player-avatar {
+transition: all 0.3s ease;
+}
+.player-avatar:hover {
+transform: scale(1.2);
+z-index: 10;
+}
+.step-card {
+border-left: 4px solid #4f46e5;
+}
+.tab-active {
+background-color: #4f46e5;
+color: white;
+}
+</style>
+</head>
+<body class="bg-gray-100 font-sans">
+<!-- Navigation -->
+<nav class="bg-indigo-600 text-white shadow-lg">
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<i data-feather="award" class="w-8 h-8"></i>
+<span class="text-xl font-bold">QuizMaster Setup Guide</span>
+</div>
+</div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 py-8">
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+<h1 class="text-3xl font-bold text-gray-800 mb-4">Connect Your Quiz to Google Sheets</h1>
+<p class="text-gray-600 mb-6">Follow these steps to connect your quiz application to Google Sheets and enable data collection from players.</p>
+
+<!-- Tabs -->
+<div class="flex border-b border-gray-200 mb-6">
+<button id="tab-setup" class="px-4 py-2 font-medium tab-active">Google Sheets Setup</button>
+<button id="tab-host" class="px-4 py-2 font-medium text-gray-600">Host Page Code</button>
+<button id="tab-player" class="px-4 py-2 font-medium text-gray-600">Player Page Code</button>
+<button id="tab-leaderboard" class="px-4 py-2 font-medium text-gray-600">Leaderboard Code</button>
+</div>
+
+<!-- Tab Content -->
+<div id="content-setup" class="tab-content">
+<div class="step-card bg-gray-50 p-6 rounded-lg mb-6">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Step 1: Create Google Apps Script</h2>
+<ol class="list-decimal pl-6 mb-4 space-y-2">
+<li>Create a new Google Sheet at <a href="https://sheets.google.com" class="text-indigo-600 underline" target="_blank">sheets.google.com</a></li>
+<li>Click <strong>Extensions > Apps Script</strong></li>
+<li>Delete any existing code and paste this code:</li>
+</ol>
+
+<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+function doPost(e) {
+var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+var data = JSON.parse(e.postData.contents);
+
+// Add headers if sheet is empty
+if (sheet.getLastRow() === 0) {
+sheet.appendRow(["Timestamp", "Player", "Question", "Selected Answer", "Correct Answer", "Score"]);
+}
+
+// Add new row with data
+sheet.appendRow([new Date(), data.player, data.question, data.answer, data.correct, data.score]);
+
+return ContentService.createTextOutput("Success");
+}</pre>
+
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4">
+<p class="font-bold">Note</p>
+<p>After pasting the code, click <strong>File > Save</strong> and name your project (e.g., "Quiz Logger")</p>
+</div>
+</div>
+
+<div class="step-card bg-gray-50 p-6 rounded-lg mb-6">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Step 2: Deploy as Web App</h2>
+<ol class="list-decimal pl-6 mb-4 space-y-2">
+<li>Click the <strong>Deploy</strong> button > <strong>New deployment</strong></li>
+<li>Click the gear icon⚙️ and select <strong>Web app</strong></li>
+<li>Set <strong>Execute as:</strong> "Me" and <strong>Who has access:</strong> "Anyone"</li>
+<li>Click <strong>Deploy</strong></li>
+<li>Copy the generated Web App URL</li>
+</ol>
+
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+<p class="font-bold">Important</p>
+<p>You'll need to authorize the script when prompted. This is normal and required for the script to access your sheet.</p>
+</div>
+</div>
+
+<div class="step-card bg-gray-50 p-6 rounded-lg">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Step 3: Add URL to Your Quiz</h2>
+<p class="mb-4">In your Player page code, find the <code>sendToGoogleSheet</code> function and replace the placeholder URL with your actual Google Apps Script URL:</p>
+
+<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto">
+// In your Player page code, find this function:
+function sendToGoogleSheet(playerName, question, selectedAnswer, correctAnswer) {
+// REPLACE THIS URL with your Google Apps Script Web App URL
+const scriptUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+const data = {
+player: playerName,
+question: question,
+answer: selectedAnswer,
+correct: correctAnswer,
+score: calculateScore() // Add your scoring logic
+};
+
+fetch(scriptUrl, {
+method: 'POST',
+mode: 'no-cors',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify(data)
+});
+}</pre>
+</div>
+</div>
+
+<div id="content-host" class="tab-content hidden">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Host Page Code Modifications</h2>
+<p class="mb-4">In your Host page, you need to add navigation to other pages and ensure questions are properly structured.</p>
+
+<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+// Add navigation buttons to your Host page
+function addNavigation() {
+// Add this HTML to your Host page or create dynamically
+const navHtml = `
+<div class="flex gap-4 mt-8">
+<button onclick="showPlayerView()" class="bg-indigo-600 text-white px-4 py-2 rounded">
+Player View
+</button>
+<button onclick="showLeaderboard()" class="bg-green-600 text-white px-4 py-2 rounded">
+Leaderboard
+</button>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', navHtml);
+}
+
+// Function to switch to Player view
+function showPlayerView() {
+window.location.href = 'player.html'; // Or your player page URL
+}
+
+// Function to show Leaderboard
+function showLeaderboard() {
+window.location.href = 'leaderboard.html'; // Or your leaderboard page URL
+}
+
+// Initialize navigation when page loads
+document.addEventListener('DOMContentLoaded', addNavigation);</pre>
+</div>
+
+<div id="content-player" class="tab-content hidden">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Player Page Code Modifications</h2>
+<p class="mb-4">In your Player page, you need to add the Google Sheets integration and navigation.</p>
+
+<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+// Add this function to your Player page
+function sendToGoogleSheet(playerName, question, selectedAnswer, correctAnswer) {
+// REPLACE THIS URL with your actual Google Apps Script Web App URL
+const scriptUrl = 'https://script.google.com/macros/s/.../exec';
+
+const data = {
+player: playerName,
+question: question,
+answer: selectedAnswer,
+correct: correctAnswer,
+score: calculateScore() // Implement your scoring logic
+};
+
+fetch(scriptUrl, {
+method: 'POST',
+mode: 'no-cors',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify(data)
+}).catch(error => {
+console.error('Error saving to Google Sheets:', error);
+});
+}
+
+// Modify your answer selection logic to call this function
+document.querySelectorAll('.option-card').forEach(card => {
+card.addEventListener('click', function() {
+// Your existing answer handling code
+
+// ADD THIS LINE to save the answer to Google Sheets
+sendToGoogleSheet(playerName, questionText, selectedAnswer, correctAnswer);
+
+// Then show results or move to next question
+});
+});
+
+// Add navigation to other pages
+function addNavigation() {
+const navHtml = `
+<div class="flex gap-4 mt-8">
+<button onclick="showHostView()" class="bg-indigo-600 text-white px-4 py-2 rounded">
+Host View
+</button>
+<button onclick="showLeaderboard()" class="bg-green-600 text-white px-4 py-2 rounded">
+Leaderboard
+</button>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', navHtml);
+}</pre>
+</div>
+
+<div id="content-leaderboard" class="tab-content hidden">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Leaderboard Page Code Modifications</h2>
+<p class="mb-4">Your Leaderboard page should read data from Google Sheets to display results.</p>
+
+<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+// Add this function to your Leaderboard page to fetch data from Google Sheets
+async function fetchLeaderboardData() {
+try {
+// You can use the Google Sheets API or publish your sheet as JSON
+// Example using Sheets API (requires API key)
+const sheetId = 'YOUR_GOOGLE_SHEET_ID';
+const apiKey = 'YOUR_API_KEY';
+const range = 'A:F'; // Adjust based on your columns
+
+const response = await fetch(
+`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+);
+
+const data = await response.json();
+const rows = data.values;
+
+// Skip header row
+const playerData = rows.slice(1).map(row => ({
+timestamp: row[0],
+player: row[1],
+question: row[2],
+answer: row[3],
+correct: row[4],
+score: parseInt(row[5]) || 0
+}));
+
+// Calculate total scores per player
+const scores = {};
+playerData.forEach(item => {
+if (!scores[item.player]) {
+scores[item.player] = 0;
+}
+scores[item.player] += item.score;
+});
+
+// Convert to array and sort
+const leaderboard = Object.entries(scores)
+.map(([player, score]) => ({ player, score }))
+.sort((a, b) => b.score - a.score);
+
+// Display leaderboard
+displayLeaderboard(leaderboard);
+
+} catch (error) {
+console.error('Error fetching leaderboard data:', error);
+// Fallback to dummy data
+displayLeaderboard(dummyData);
+}
+}
+
+// Function to display the leaderboard
+function displayLeaderboard(data) {
+const leaderboardElement = document.getElementById('leaderboard-list');
+leaderboardElement.innerHTML = '';
+
+data.forEach((item, index) => {
+const rank = index + 1;
+const row = document.createElement('tr');
+row.className = 'player-row';
+row.innerHTML = `
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${rank}</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.player}</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.score}</td>
+`;
+leaderboardElement.appendChild(row);
+});
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', fetchLeaderboardData);</pre>
+</div>
+</div>
+
+<div class="bg-white rounded-xl shadow-lg p-6">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Page Navigation</h2>
+<p class="mb-4">To enable navigation between your three pages, you have two options:</p>
+
+<div class="grid md:grid-cols-2 gap-6">
+<div class="bg-blue-50 p-4 rounded-lg">
+<h3 class="text-lg font-semibold mb-2">Option 1: Separate HTML Files</h3>
+<p class="mb-2">Create three separate HTML files:</p>
+<ul class="list-disc pl-5 mb-3">
+<li><code>index.html</code> - Host view</li>
+<li><code>player.html</code> - Player view</li>
+<li><code>leaderboard.html</code> - Leaderboard</li>
+</ul>
+<p>Add navigation buttons that link between these pages:</p>
+<pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2 text-xs">
+<button onclick="location.href='player.html'">Go to Player View</button>
+<button onclick="location.href='leaderboard.html'">View Leaderboard</button></pre>
+</div>
+
+<div class="bg-green-50 p-4 rounded-lg">
+<h3 class="text-lg font-semibold mb-2">Option 2: Single Page Application</h3>
+<p class="mb-2">Use JavaScript to show/hide different sections:</p>
+<pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2 text-xs">
+function showSection(sectionId) {
+// Hide all sections
+document.querySelectorAll('.page-section').forEach(section => {
+section.classList.add('hidden');
+});
+
+// Show the requested section
+document.getElementById(sectionId).classList.remove('hidden');
+}
+
+// Add navigation buttons
+<button onclick="showSection('host-view')">Host View</button>
+<button onclick="showSection('player-view')">Player View</button>
+<button onclick="showSection('leaderboard-view')">Leaderboard</button></pre>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// Initialize AOS
+AOS.init({
+duration: 800,
+easing: 'ease-in-out',
+once: true
+});
+
+// Initialize Feather Icons
+feather.replace();
+
+// Tab functionality
+document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+tab.addEventListener('click', function() {
+// Update tab styles
+document.querySelectorAll('[id^="tab-"]').forEach(t => {
+t.classList.remove('tab-active', 'text-white');
+t.classList.add('text-gray-600');
+});
+this.classList.add('tab-active', 'text-white');
+this.classList.remove('text-gray-600');
+
+// Show relevant content
+const contentId = this.id.replace('tab-', 'content-');
+document.querySelectorAll('.tab-content').forEach(content => {
+content.classList.add('hidden');
+});
+document.getElementById(contentId).classList.remove('hidden');
+});
+});
+</script>
+</body>
+</html>
