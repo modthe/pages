@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuizMaster - Complete Setup Guide</title>
+<title>QuizMaster - Complete Setup</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -28,12 +28,55 @@ transition: all 0.3s ease;
 transform: scale(1.2);
 z-index: 10;
 }
+.selected {
+border-color: #4f46e5;
+background-color: #eef2ff;
+}
+.correct {
+border-color: #10b981;
+background-color: #d1fae5;
+}
+.incorrect {
+border-color: #ef4444;
+background-color: #fee2e2;
+}
+.countdown {
+font-family: monospace;
+}
+.podium-item {
+transition: all 0.3s ease;
+}
+.podium-item:hover {
+transform: translateY(-5px);
+}
+.player-row:hover {
+background-color: #f9fafb;
+}
+.medal-gold {
+background: linear-gradient(135deg, #fcd34d, #f59e0b);
+}
+.medal-silver {
+background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+}
+.medal-bronze {
+background: linear-gradient(135deg, #fca5a5, #f87171);
+}
+.page-section {
+display: none;
+}
+.active-section {
+display: block;
+}
+.nav-active {
+background-color: #4f46e5;
+color: white;
+}
 .step-card {
 border-left: 4px solid #4f46e5;
 }
-.tab-active {
-background-color: #4f46e5;
-color: white;
+pre {
+white-space: pre-wrap;
+word-wrap: break-word;
 }
 </style>
 </head>
@@ -43,27 +86,23 @@ color: white;
 <div class="container mx-auto px-4 py-3 flex justify-between items-center">
 <div class="flex items-center space-x-2">
 <i data-feather="award" class="w-8 h-8"></i>
-<span class="text-xl font-bold">QuizMaster Setup Guide</span>
+<span class="text-xl font-bold">QuizMaster</span>
+</div>
+<div class="flex space-x-4">
+<button id="nav-setup" class="nav-active px-4 py-2 rounded-lg">Setup</button>
+<button id="nav-host" class="px-4 py-2 rounded-lg">Host</button>
+<button id="nav-player" class="px-4 py-2 rounded-lg">Player</button>
+<button id="nav-leaderboard" class="px-4 py-2 rounded-lg">Leaderboard</button>
 </div>
 </div>
 </nav>
 
-<!-- Main Content -->
-<div class="container mx-auto px-4 py-8">
+<!-- Setup View -->
+<section id="setup-view" class="page-section active-section container mx-auto px-4 py-8">
 <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-<h1 class="text-3xl font-bold text-gray-800 mb-4">Connect Your Quiz to Google Sheets</h1>
+<h1 class="text-3xl font-bold text-gray-800 mb-4">Google Sheets Setup</h1>
 <p class="text-gray-600 mb-6">Follow these steps to connect your quiz application to Google Sheets and enable data collection from players.</p>
 
-<!-- Tabs -->
-<div class="flex border-b border-gray-200 mb-6">
-<button id="tab-setup" class="px-4 py-2 font-medium tab-active">Google Sheets Setup</button>
-<button id="tab-host" class="px-4 py-2 font-medium text-gray-600">Host Page Code</button>
-<button id="tab-player" class="px-4 py-2 font-medium text-gray-600">Player Page Code</button>
-<button id="tab-leaderboard" class="px-4 py-2 font-medium text-gray-600">Leaderboard Code</button>
-</div>
-
-<!-- Tab Content -->
-<div id="content-setup" class="tab-content">
 <div class="step-card bg-gray-50 p-6 rounded-lg mb-6">
 <h2 class="text-2xl font-bold text-gray-800 mb-4">Step 1: Create Google Apps Script</h2>
 <ol class="list-decimal pl-6 mb-4 space-y-2">
@@ -98,7 +137,7 @@ return ContentService.createTextOutput("Success");
 <h2 class="text-2xl font-bold text-gray-800 mb-4">Step 2: Deploy as Web App</h2>
 <ol class="list-decimal pl-6 mb-4 space-y-2">
 <li>Click the <strong>Deploy</strong> button > <strong>New deployment</strong></li>
-<li>Click the gear icon⚙️ and select <strong>Web app</strong></li>
+<li>Click the gear icon ⚙️ and select <strong>Web app</strong></li>
 <li>Set <strong>Execute as:</strong> "Me" and <strong>Who has access:</strong> "Anyone"</li>
 <li>Click <strong>Deploy</strong></li>
 <li>Copy the generated Web App URL</li>
@@ -112,85 +151,655 @@ return ContentService.createTextOutput("Success");
 
 <div class="step-card bg-gray-50 p-6 rounded-lg">
 <h2 class="text-2xl font-bold text-gray-800 mb-4">Step 3: Add URL to Your Quiz</h2>
-<p class="mb-4">In your Player page code, find the <code>sendToGoogleSheet</code> function and replace the placeholder URL with your actual Google Apps Script URL:</p>
+<p class="mb-4">Paste your Google Apps Script URL below:</p>
 
-<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto">
-// In your Player page code, find this function:
-function sendToGoogleSheet(playerName, question, selectedAnswer, correctAnswer) {
-// REPLACE THIS URL with your Google Apps Script Web App URL
-const scriptUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+<div class="mb-4">
+<label class="block text-gray-700 text-sm font-bold mb-2" for="script-url">
+Web App URL
+</label>
+<input type="text" id="script-url" placeholder="https://script.google.com/..."
+class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+</div>
 
-const data = {
-player: playerName,
-question: question,
-answer: selectedAnswer,
-correct: correctAnswer,
-score: calculateScore() // Add your scoring logic
-};
+<button onclick="saveScriptUrl()" class="bg-indigo-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-indigo-700 transition duration-300">
+Save URL
+</button>
 
-fetch(scriptUrl, {
-method: 'POST',
-mode: 'no-cors',
-headers: {
-'Content-Type': 'application/json',
-},
-body: JSON.stringify(data)
+<div id="url-status" class="mt-4 text-green-600 font-medium hidden">
+<i data-feather="check-circle" class="w-5 h-5 inline mr-2"></i> URL saved successfully!
+</div>
+</div>
+</div>
+</section>
+
+<!-- Host View -->
+<section id="host-view" class="page-section container mx-auto px-4 py-8">
+<div class="bg-white rounded-xl shadow-lg p-6 mb-8" data-aos="fade-up">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold text-gray-800">Quiz: Science Trivia</h2>
+<div class="flex items-center gap-2">
+<span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+<i data-feather="users" class="w-4 h-4 inline mr-1"></i> <span id="player-count">0</span>/40
+</span>
+<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+<i data-feather="clock" class="w-4 h-4 inline mr-1"></i> <span id="timer">2:00</span>
+</span>
+</div>
+</div>
+
+<!-- Question -->
+<div class="mb-8">
+<h3 class="text-xl font-semibold text-gray-700 mb-4">Question <span id="current-question">1</span> of 5</h3>
+<p class="text-2xl font-bold text-gray-900 mb-6" id="question-text">Which planet in our solar system has the most moons?</p>
+
+<!-- Options Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" id="options-container">
+<!-- Options will be populated by JavaScript -->
+</div>
+</div>
+
+<!-- Host Controls -->
+<div class="flex flex-wrap justify-between items-center gap-4">
+<div>
+<span class="text-gray-600">Game PIN: </span>
+<span class="font-mono text-2xl font-bold text-indigo-600" id="game-pin">739482</span>
+</div>
+<div class="flex gap-3">
+<button id="pause-btn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-300 flex items-center gap-2">
+<i data-feather="pause"></i> Pause
+</button>
+<button id="next-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center gap-2">
+<i data-feather="skip-forward"></i> Next
+</button>
+</div>
+</div>
+</div>
+
+<!-- Player Grid -->
+<div id="players-view" class="bg-white rounded-xl shadow-lg p-6" data-aos="fade-up">
+<h2 class="text-2xl font-bold text-gray-800 mb-6">Players (<span id="players-count">0</span>)</h2>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4" id="players-container">
+<!-- Player avatars will be populated by JavaScript -->
+</div>
+</div>
+</section>
+
+<!-- Player View -->
+<section id="player-view" class="page-section container mx-auto px-4 py-8">
+<!-- Player Header -->
+<header class="bg-white shadow-sm mb-6">
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<i data-feather="award" class="w-6 h-6 text-indigo-600"></i>
+<span class="font-bold">QuizMaster</span>
+</div>
+<div class="flex items-center space-x-4">
+<div class="flex items-center space-x-1">
+<i data-feather="users" class="w-4 h-4 text-gray-500"></i>
+<span class="text-sm"><span id="player-count-display">0</span> players</span>
+</div>
+<div class="flex items-center space-x-1">
+<i data-feather="award" class="w-4 h-4 text-gray-500"></i>
+<span class="text-sm">#<span id="player-rank">-</span></span>
+</div>
+<div class="flex items-center space-x-1">
+<i data-feather="star" class="w-4 h-4 text-yellow-500"></i>
+<span class="text-sm"><span id="player-score">0</span></span>
+</div>
+</div>
+</div>
+</header>
+
+<!-- Main Player Area -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+<div class="flex flex-col md:flex-row justify-between items-center">
+<div class="mb-4 md:mb-0">
+<h1 class="text-2xl font-bold text-gray-800">Science Trivia</h1>
+<p class="text-gray-600">Hosted by: Prof. Johnson</p>
+</div>
+<div class="flex items-center space-x-4">
+<div class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-lg">
+<div class="text-xs">QUESTION</div>
+<div class="text-xl font-bold"><span id="player-question-number">1</span>/5</div>
+</div>
+<div class="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+<div class="text-xs">TIME LEFT</div>
+<div class="text-xl font-bold countdown" id="player-timer">0:15</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Question Area -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6" data-aos="fade-up">
+<div class="mb-6">
+<h2 class="text-xl font-semibold text-gray-700 mb-2">Question <span id="player-q-number">1</span></h2>
+<p class="text-2xl font-bold text-gray-900" id="player-question-text">Which planet in our solar system has the most moons?</p>
+</div>
+
+<!-- Answer Options -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="player-options-container">
+<!-- Options will be populated by JavaScript -->
+</div>
+</div>
+
+<!-- Score and Position -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-white rounded-xl shadow-md p-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-semibold text-gray-700">Your Score</h3>
+<i data-feather="star" class="w-5 h-5 text-yellow-500"></i>
+</div>
+<div class="text-3xl font-bold text-indigo-600" id="player-score-display">0</div>
+<div class="text-sm text-gray-500 mt-1" id="score-change">+0 from last question</div>
+</div>
+<div class="bg-white rounded-xl shadow-md p-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-semibold text-gray-700">Your Position</h3>
+<i data-feather="trending-up" class="w-5 h-5 text-green-500"></i>
+</div>
+<div class="text-3xl font-bold text-indigo-600">#<span id="player-position">-</span></div>
+<div class="text-sm text-gray-500 mt-1" id="position-change">↑0 from last question</div>
+</div>
+<div class="bg-white rounded-xl shadow-md p-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-semibold text-gray-700">Accuracy</h3>
+<i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
+</div>
+<div class="text-3xl font-bold text-indigo-600"><span id="accuracy">0</span>%</div>
+<div class="text-sm text-gray-500 mt-1"><span id="correct-answers">0</span>/<span id="total-answers">0</span> correct so far</div>
+</div>
+</div>
+</section>
+
+<!-- Leaderboard View -->
+<section id="leaderboard-view" class="page-section container mx-auto px-4 py-8">
+<!-- Header -->
+<header class="bg-white shadow-sm mb-8">
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<i data-feather="award" class="w-6 h-6 text-indigo-600"></i>
+<span class="font-bold">QuizMaster Leaderboard</span>
+</div>
+<div class="flex items-center space-x-4">
+<div class="flex items-center space-x-1">
+<i data-feather="users" class="w-4 h-4 text-gray-500"></i>
+<span class="text-sm"><span id="leaderboard-player-count">0</span> players</span>
+</div>
+<div class="flex items-center space-x-1">
+<i data-feather="award" class="w-4 h-4 text-gray-500"></i>
+<span class="text-sm">#<span id="user-rank">-</span></span>
+</div>
+</div>
+</div>
+</header>
+
+<!-- Quiz Info -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-8 text-center">
+<h1 class="text-3xl font-bold text-gray-800 mb-2">Science Trivia</h1>
+<p class="text-gray-600 mb-4">Hosted by: Prof. Johnson</p>
+<div class="flex justify-center space-x-6">
+<div class="text-center">
+<div class="text-2xl font-bold text-indigo-600">5</div>
+<div class="text-sm text-gray-500">Questions</div>
+</div>
+<div class="text-center">
+<div class="text-2xl font-bold text-indigo-600"><span id="leaderboard-players-count">0</span></div>
+<div class="text-sm text-gray-500">Players</div>
+</div>
+<div class="text-center">
+<div class="text-2xl font-bold text-indigo-600">15:42</div>
+<div class="text-sm text-gray-500">Duration</div>
+</div>
+</div>
+</div>
+
+<!-- Podium -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-aos="fade-up" id="podium-container">
+<!-- Podium will be populated by JavaScript -->
+</div>
+
+<!-- Full Leaderboard -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden" data-aos="fade-up">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-gray-200">
+<thead class="bg-gray-50">
+<tr>
+<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correct</th>
+<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Speed</th>
+</tr>
+</thead>
+<tbody class="bg-white divide-y divide-gray-200" id="leaderboard-body">
+<!-- Leaderboard rows will be populated by JavaScript -->
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row justify-center gap-4 mt-8" data-aos="fade-up">
+<button onclick="showSection('host-view')" class="bg-indigo-600 text-white font-medium py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center gap-2">
+<i data-feather="home"></i> Back to Host
+</button>
+<button onclick="showSection('player-view')" class="bg-white border border-gray-300 text-gray-700 font-medium py-3 px-8 rounded-lg hover:bg-gray-50 transition duration-300 flex items-center justify-center gap-2">
+<i data-feather="user"></i> Player View
+</button>
+</div>
+</section>
+
+<script>
+// Initialize components
+AOS.init({
+duration: 800,
+easing: 'ease-in-out',
+once: true
 });
-}</pre>
-</div>
-</div>
+feather.replace();
 
-<div id="content-host" class="tab-content hidden">
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Host Page Code Modifications</h2>
-<p class="mb-4">In your Host page, you need to add navigation to other pages and ensure questions are properly structured.</p>
+// Navigation
+document.getElementById('nav-setup').addEventListener('click', () => showSection('setup-view'));
+document.getElementById('nav-host').addEventListener('click', () => showSection('host-view'));
+document.getElementById('nav-player').addEventListener('click', () => showSection('player-view'));
+document.getElementById('nav-leaderboard').addEventListener('click', () => showSection('leaderboard-view'));
 
-<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
-// Add navigation buttons to your Host page
-function addNavigation() {
-// Add this HTML to your Host page or create dynamically
-const navHtml = `
-<div class="flex gap-4 mt-8">
-<button onclick="showPlayerView()" class="bg-indigo-600 text-white px-4 py-2 rounded">
-Player View
-</button>
-<button onclick="showLeaderboard()" class="bg-green-600 text-white px-4 py-2 rounded">
-Leaderboard
-</button>
+function showSection(sectionId) {
+// Hide all sections
+document.querySelectorAll('.page-section').forEach(section => {
+section.classList.remove('active-section');
+});
+
+// Show the requested section
+document.getElementById(sectionId).classList.add('active-section');
+
+// Update navigation
+document.querySelectorAll('nav button').forEach(button => {
+button.classList.remove('nav-active');
+});
+document.getElementById(`nav-${sectionId.split('-')[0]}`).classList.add('nav-active');
+
+// Refresh data if needed
+if (sectionId === 'leaderboard-view') {
+updateLeaderboard();
+}
+}
+
+// Quiz data
+const questions = [
+{
+question: "Which planet in our solar system has the most moons?",
+options: ["Jupiter", "Saturn", "Neptune", "Uranus"],
+correctAnswer: 1 // Saturn
+},
+{
+question: "What is the chemical symbol for gold?",
+options: ["Go", "Gd", "Au", "Ag"],
+correctAnswer: 2 // Au
+},
+{
+question: "Which gas do plants absorb from the atmosphere?",
+options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+correctAnswer: 2 // Carbon Dioxide
+},
+{
+question: "What is the largest organ in the human body?",
+options: ["Liver", "Heart", "Skin", "Lungs"],
+correctAnswer: 2 // Skin
+},
+{
+question: "Which element has the atomic number 1?",
+options: ["Oxygen", "Carbon", "Hydrogen", "Helium"],
+correctAnswer: 2 // Hydrogen
+}
+];
+
+// Player data
+let players = [];
+let currentQuestion = 0;
+let timerInterval;
+let timeLeft = 120; // 2 minutes for the quiz
+
+// Initialize the quiz
+function initQuiz() {
+generateGamePin();
+loadPlayers();
+showQuestion();
+startTimer();
+
+// Load Google Sheets URL if saved
+const savedUrl = localStorage.getItem('googleScriptUrl');
+if (savedUrl) {
+document.getElementById('script-url').value = savedUrl;
+}
+}
+
+// Generate a random game PIN
+function generateGamePin() {
+const pin = Math.floor(100000 + Math.random() * 900000);
+document.getElementById('game-pin').textContent = pin;
+}
+
+// Load sample players (in a real app, this would come from a server)
+function loadPlayers() {
+players = [
+{ id: 1, name: "JohnDoe", score: 0, avatar: "JD", color: "indigo" },
+{ id: 2, name: "AliceSmith", score: 0, avatar: "AS", color: "pink" },
+{ id: 3, name: "BobJones", score: 0, avatar: "BJ", color: "green" },
+{ id: 4, name: "ChrisW", score: 0, avatar: "CW", color: "yellow" },
+{ id: 5, name: "EmmaM", score: 0, avatar: "EM", color: "red" },
+{ id: 6, name: "FrankR", score: 0, avatar: "FR", color: "purple" },
+{ id: 7, name: "GraceP", score: 0, avatar: "GP", color: "blue" },
+{ id: 8, name: "HenryS", score: 0, avatar: "HS", color: "teal" }
+];
+
+updatePlayersDisplay();
+}
+
+// Update players display
+function updatePlayersDisplay() {
+const playersContainer = document.getElementById('players-container');
+playersContainer.innerHTML = '';
+
+players.forEach(player => {
+const playerEl = document.createElement('div');
+playerEl.className = 'player-avatar flex flex-col items-center';
+playerEl.innerHTML = `
+<div class="w-12 h-12 rounded-full bg-${player.color}-100 flex items-center justify-center mb-1">
+<span class="text-${player.color}-600 font-bold">${player.avatar}</span>
+</div>
+<span class="text-xs text-center truncate w-full">${player.name}</span>
+`;
+playersContainer.appendChild(playerEl);
+});
+
+document.getElementById('player-count').textContent = players.length;
+document.getElementById('players-count').textContent = players.length;
+document.getElementById('player-count-display').textContent = players.length;
+document.getElementById('leaderboard-player-count').textContent = players.length;
+document.getElementById('leaderboard-players-count').textContent = players.length;
+}
+
+// Show current question
+function showQuestion() {
+const question = questions[currentQuestion];
+document.getElementById('current-question').textContent = currentQuestion + 1;
+document.getElementById('question-text').textContent = question.question;
+
+const optionsContainer = document.getElementById('options-container');
+optionsContainer.innerHTML = '';
+
+question.options.forEach((option, index) => {
+const optionEl = document.createElement('div');
+optionEl.className = 'option-card bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer transition duration-300 hover:border-indigo-400';
+optionEl.innerHTML = `
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+<span class="text-indigo-600 font-bold">${String.fromCharCode(65 + index)}</span>
+</div>
+<span class="text-lg">${option}</span>
 </div>
 `;
-document.body.insertAdjacentHTML('beforeend', navHtml);
+
+if (index === question.correctAnswer) {
+optionEl.style.fontWeight = "bold";
+optionEl.style.color = "#4caf50";
 }
 
-// Function to switch to Player view
-function showPlayerView() {
-window.location.href = 'player.html'; // Or your player page URL
-}
+optionsContainer.appendChild(optionEl);
+});
 
-// Function to show Leaderboard
-function showLeaderboard() {
-window.location.href = 'leaderboard.html'; // Or your leaderboard page URL
-}
+// Update player view question
+document.getElementById('player-question-number').textContent = currentQuestion + 1;
+document.getElementById('player-q-number').textContent = currentQuestion + 1;
+document.getElementById('player-question-text').textContent = question.question;
 
-// Initialize navigation when page loads
-document.addEventListener('DOMContentLoaded', addNavigation);</pre>
+const playerOptionsContainer = document.getElementById('player-options-container');
+playerOptionsContainer.innerHTML = '';
+
+question.options.forEach((option, index) => {
+const optionEl = document.createElement('div');
+optionEl.className = 'option-card bg-white border-2 border-gray-200 rounded-lg p-4 cursor-pointer transition duration-300';
+optionEl.setAttribute('data-option', index);
+optionEl.innerHTML = `
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+<span class="text-indigo-600 font-bold">${String.fromCharCode(65 + index)}</span>
 </div>
+<span class="text-lg">${option}</span>
+</div>
+`;
 
-<div id="content-player" class="tab-content hidden">
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Player Page Code Modifications</h2>
-<p class="mb-4">In your Player page, you need to add the Google Sheets integration and navigation.</p>
+optionEl.addEventListener('click', () => selectAnswer(index));
+playerOptionsContainer.appendChild(optionEl);
+});
+}
 
-<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
-// Add this function to your Player page
+// Start the timer
+function startTimer() {
+clearInterval(timerInterval);
+
+timeLeft = 120; // Reset to 2 minutes
+updateTimerDisplay();
+
+timerInterval = setInterval(() => {
+timeLeft--;
+updateTimerDisplay();
+
+if (timeLeft <= 0) {
+clearInterval(timerInterval);
+nextQuestion();
+}
+}, 1000);
+}
+
+// Update timer display
+function updateTimerDisplay() {
+const minutes = Math.floor(timeLeft / 60);
+const seconds = timeLeft % 60;
+document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+document.getElementById('player-timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Select an answer (player view)
+function selectAnswer(optionIndex) {
+const question = questions[currentQuestion];
+const isCorrect = optionIndex === question.correctAnswer;
+
+// Visual feedback
+const options = document.querySelectorAll('#player-options-container .option-card');
+options.forEach((option, idx) => {
+option.classList.remove('selected');
+if (idx === question.correctAnswer) {
+option.classList.add('correct');
+} else if (idx === optionIndex && !isCorrect) {
+option.classList.add('incorrect');
+}
+
+option.style.pointerEvents = 'none';
+});
+
+options[optionIndex].classList.add('selected');
+
+// Update score
+if (isCorrect) {
+const currentPlayer = players[0]; // Assuming first player is the current user
+currentPlayer.score += 100;
+document.getElementById('player-score').textContent = currentPlayer.score;
+document.getElementById('player-score-display').textContent = currentPlayer.score;
+document.getElementById('score-change').textContent = '+100 from last question';
+
+// Update accuracy
+const totalAnswers = parseInt(document.getElementById('total-answers').textContent) + 1;
+const correctAnswers = parseInt(document.getElementById('correct-answers').textContent) + 1;
+const accuracy = Math.round((correctAnswers / totalAnswers) * 100);
+
+document.getElementById('total-answers').textContent = totalAnswers;
+document.getElementById('correct-answers').textContent = correctAnswers;
+document.getElementById('accuracy').textContent = accuracy;
+
+// Send to Google Sheets
+sendToGoogleSheet(
+currentPlayer.name,
+question.question,
+question.options[optionIndex],
+question.options[question.correctAnswer]
+);
+}
+
+// Update leaderboard after a delay
+setTimeout(() => {
+updateLeaderboard();
+}, 2000);
+}
+
+// Next question (host view)
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+
+function nextQuestion() {
+currentQuestion++;
+
+if (currentQuestion >= questions.length) {
+// End of quiz
+clearInterval(timerInterval);
+alert('Quiz completed!');
+showSection('leaderboard-view');
+} else {
+showQuestion();
+startTimer();
+}
+}
+
+// Update leaderboard
+function updateLeaderboard() {
+// Sort players by score
+const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+
+// Update podium
+const podiumContainer = document.getElementById('podium-container');
+podiumContainer.innerHTML = '';
+
+// First place
+if (sortedPlayers.length > 0) {
+const first = sortedPlayers[0];
+podiumContainer.innerHTML += `
+<div class="podium-item flex flex-col items-center order-2 md:order-1">
+<div class="w-24 h-24 rounded-full medal-gold flex items-center justify-center mb-4 shadow-lg">
+<span class="text-white text-3xl font-bold">1</span>
+</div>
+<div class="bg-white rounded-lg shadow-md p-4 w-full text-center">
+<h3 class="font-bold text-gray-800">${first.name}</h3>
+<div class="flex justify-center items-center mt-2">
+<i data-feather="star" class="w-4 h-4 text-yellow-500 mr-1"></i>
+<span class="text-gray-700 font-medium">${first.score}</span>
+</div>
+</div>
+</div>
+`;
+}
+
+// Second place
+if (sortedPlayers.length > 1) {
+const second = sortedPlayers[1];
+podiumContainer.innerHTML += `
+<div class="podium-item flex flex-col items-center order-1 md:order-2">
+<div class="w-20 h-20 rounded-full medal-silver flex items-center justify-center mb-4 shadow-lg">
+<span class="text-white text-2xl font-bold">2</span>
+</div>
+<div class="bg-white rounded-lg shadow-md p-4 w-full text-center">
+<h3 class="font-bold text-gray-800">${second.name}</h3>
+<div class="flex justify-center items-center mt-2">
+<i data-feather="star" class="w-4 h-4 text-yellow-500 mr-1"></i>
+<span class="text-gray-700 font-medium">${second.score}</span>
+</div>
+</div>
+</div>
+`;
+}
+
+// Third place
+if (sortedPlayers.length > 2) {
+const third = sortedPlayers[2];
+podiumContainer.innerHTML += `
+<div class="podium-item flex flex-col items-center order-3 md:order-3">
+<div class="w-16 h-16 rounded-full medal-bronze flex items-center justify-center mb-4 shadow-lg">
+<span class="text-white text-xl font-bold">3</span>
+</div>
+<div class="bg-white rounded-lg shadow-md p-4 w-full text-center">
+<h3 class="font-bold text-gray-800">${third.name}</h3>
+<div class="flex justify-center items-center mt-2">
+<i data-feather="star" class="w-4 h-4 text-yellow-500 mr-1"></i>
+<span class="text-gray-700 font-medium">${third.score}</span>
+</div>
+</div>
+</div>
+`;
+}
+
+// Update full leaderboard
+const leaderboardBody = document.getElementById('leaderboard-body');
+leaderboardBody.innerHTML = '';
+
+sortedPlayers.forEach((player, index) => {
+const row = document.createElement('tr');
+row.className = 'player-row';
+
+I'll continue the code from where it left off:
+
+```html
+if (player.name === "JohnDoe") { // Assuming this is the current user
+row.classList.add('bg-indigo-50');
+document.getElementById('user-rank').textContent = index + 1;
+document.getElementById('player-rank').textContent = index + 1;
+document.getElementById('player-position').textContent = index + 1;
+
+if (index > 0) {
+document.getElementById('position-change').textContent = `↑${sortedPlayers.length - index} from start`;
+}
+}
+
+row.innerHTML = `
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<div class="flex-shrink-0 h-10 w-10 rounded-full bg-${player.color}-100 flex items-center justify-center">
+<span class="text-${player.color}-600 font-bold">${player.avatar}</span>
+</div>
+<div class="ml-4">
+<div class="text-sm font-medium text-gray-900">${player.name}</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${player.score}</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.round(player.score/100)}/5</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Math.floor(Math.random() * 5) + 1}.${Math.floor(Math.random() * 9)}s avg</td>
+`;
+
+leaderboardBody.appendChild(row);
+});
+
+feather.replace();
+}
+
+// Google Sheets integration
 function sendToGoogleSheet(playerName, question, selectedAnswer, correctAnswer) {
-// REPLACE THIS URL with your actual Google Apps Script Web App URL
-const scriptUrl = 'https://script.google.com/macros/s/.../exec';
+const scriptUrl = localStorage.getItem('googleScriptUrl');
+
+if (!scriptUrl) {
+// Show setup page if URL is not set
+alert('Please set up Google Sheets integration first!');
+showSection('setup-view');
+return;
+}
 
 const data = {
 player: playerName,
 question: question,
 answer: selectedAnswer,
 correct: correctAnswer,
-score: calculateScore() // Implement your scoring logic
+score: 100,
+timestamp: new Date().toISOString()
 };
 
 fetch(scriptUrl, {
@@ -205,184 +814,20 @@ console.error('Error saving to Google Sheets:', error);
 });
 }
 
-// Modify your answer selection logic to call this function
-document.querySelectorAll('.option-card').forEach(card => {
-card.addEventListener('click', function() {
-// Your existing answer handling code
-
-// ADD THIS LINE to save the answer to Google Sheets
-sendToGoogleSheet(playerName, questionText, selectedAnswer, correctAnswer);
-
-// Then show results or move to next question
-});
-});
-
-// Add navigation to other pages
-function addNavigation() {
-const navHtml = `
-<div class="flex gap-4 mt-8">
-<button onclick="showHostView()" class="bg-indigo-600 text-white px-4 py-2 rounded">
-Host View
-</button>
-<button onclick="showLeaderboard()" class="bg-green-600 text-white px-4 py-2 rounded">
-Leaderboard
-</button>
-</div>
-`;
-document.body.insertAdjacentHTML('beforeend', navHtml);
-}</pre>
-</div>
-
-<div id="content-leaderboard" class="tab-content hidden">
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Leaderboard Page Code Modifications</h2>
-<p class="mb-4">Your Leaderboard page should read data from Google Sheets to display results.</p>
-
-<pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
-// Add this function to your Leaderboard page to fetch data from Google Sheets
-async function fetchLeaderboardData() {
-try {
-// You can use the Google Sheets API or publish your sheet as JSON
-// Example using Sheets API (requires API key)
-const sheetId = 'YOUR_GOOGLE_SHEET_ID';
-const apiKey = 'YOUR_API_KEY';
-const range = 'A:F'; // Adjust based on your columns
-
-const response = await fetch(
-`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-);
-
-const data = await response.json();
-const rows = data.values;
-
-// Skip header row
-const playerData = rows.slice(1).map(row => ({
-timestamp: row[0],
-player: row[1],
-question: row[2],
-answer: row[3],
-correct: row[4],
-score: parseInt(row[5]) || 0
-}));
-
-// Calculate total scores per player
-const scores = {};
-playerData.forEach(item => {
-if (!scores[item.player]) {
-scores[item.player] = 0;
-}
-scores[item.player] += item.score;
-});
-
-// Convert to array and sort
-const leaderboard = Object.entries(scores)
-.map(([player, score]) => ({ player, score }))
-.sort((a, b) => b.score - a.score);
-
-// Display leaderboard
-displayLeaderboard(leaderboard);
-
-} catch (error) {
-console.error('Error fetching leaderboard data:', error);
-// Fallback to dummy data
-displayLeaderboard(dummyData);
+// Save Google Script URL
+function saveScriptUrl() {
+const url = document.getElementById('script-url').value;
+if (url) {
+localStorage.setItem('googleScriptUrl', url);
+document.getElementById('url-status').classList.remove('hidden');
+setTimeout(() => {
+document.getElementById('url-status').classList.add('hidden');
+}, 3000);
 }
 }
 
-// Function to display the leaderboard
-function displayLeaderboard(data) {
-const leaderboardElement = document.getElementById('leaderboard-list');
-leaderboardElement.innerHTML = '';
-
-data.forEach((item, index) => {
-const rank = index + 1;
-const row = document.createElement('tr');
-row.className = 'player-row';
-row.innerHTML = `
-<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${rank}</td>
-<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.player}</td>
-<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.score}</td>
-`;
-leaderboardElement.appendChild(row);
-});
-}
-
-// Call this function when the page loads
-document.addEventListener('DOMContentLoaded', fetchLeaderboardData);</pre>
-</div>
-</div>
-
-<div class="bg-white rounded-xl shadow-lg p-6">
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Page Navigation</h2>
-<p class="mb-4">To enable navigation between your three pages, you have two options:</p>
-
-<div class="grid md:grid-cols-2 gap-6">
-<div class="bg-blue-50 p-4 rounded-lg">
-<h3 class="text-lg font-semibold mb-2">Option 1: Separate HTML Files</h3>
-<p class="mb-2">Create three separate HTML files:</p>
-<ul class="list-disc pl-5 mb-3">
-<li><code>index.html</code> - Host view</li>
-<li><code>player.html</code> - Player view</li>
-<li><code>leaderboard.html</code> - Leaderboard</li>
-</ul>
-<p>Add navigation buttons that link between these pages:</p>
-<pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2 text-xs">
-<button onclick="location.href='player.html'">Go to Player View</button>
-<button onclick="location.href='leaderboard.html'">View Leaderboard</button></pre>
-</div>
-
-<div class="bg-green-50 p-4 rounded-lg">
-<h3 class="text-lg font-semibold mb-2">Option 2: Single Page Application</h3>
-<p class="mb-2">Use JavaScript to show/hide different sections:</p>
-<pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2 text-xs">
-function showSection(sectionId) {
-// Hide all sections
-document.querySelectorAll('.page-section').forEach(section => {
-section.classList.add('hidden');
-});
-
-// Show the requested section
-document.getElementById(sectionId).classList.remove('hidden');
-}
-
-// Add navigation buttons
-<button onclick="showSection('host-view')">Host View</button>
-<button onclick="showSection('player-view')">Player View</button>
-<button onclick="showSection('leaderboard-view')">Leaderboard</button></pre>
-</div>
-</div>
-</div>
-</div>
-
-<script>
-// Initialize AOS
-AOS.init({
-duration: 800,
-easing: 'ease-in-out',
-once: true
-});
-
-// Initialize Feather Icons
-feather.replace();
-
-// Tab functionality
-document.querySelectorAll('[id^="tab-"]').forEach(tab => {
-tab.addEventListener('click', function() {
-// Update tab styles
-document.querySelectorAll('[id^="tab-"]').forEach(t => {
-t.classList.remove('tab-active', 'text-white');
-t.classList.add('text-gray-600');
-});
-this.classList.add('tab-active', 'text-white');
-this.classList.remove('text-gray-600');
-
-// Show relevant content
-const contentId = this.id.replace('tab-', 'content-');
-document.querySelectorAll('.tab-content').forEach(content => {
-content.classList.add('hidden');
-});
-document.getElementById(contentId).classList.remove('hidden');
-});
-});
+// Initialize the application
+document.addEventListener('DOMContentLoaded', initQuiz);
 </script>
 </body>
 </html>
